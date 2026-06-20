@@ -5,7 +5,7 @@ description: 百度网盘文件下载和上传。当用户提到"百度网盘"�
 
 # 百度网盘 Skill
 
-百度网盘文件操作：下载和上传。
+百度网盘文件操作：下载和上传。本技能依赖baidu-netdisk-local-uploader MCP服务。如果环境变量中有BAIDU_NETDISK_ACCESS_TOKE，从环境变量设置该值，如果没有从MCP服务中获取，并设置到环境变量BAIDU_NETDISK_ACCESS_TOKEN中。
 
 ## 下载文件
 
