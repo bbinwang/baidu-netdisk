@@ -1,6 +1,6 @@
 ---
 name: baidu-netdisk
-description: 百度网盘文件下载和上传。当用户提到"百度网盘"、"网盘下载"、"网盘上传"、"pan download"、"pan upload"、"从网盘下载"、"上传到网盘"时触发。下载通过 Python 脚本实现，上传通过 MCP server baidu-netdisk-local-uploader 实现。
+description: 百度网盘文件下载和上传。当用户提到"百度网盘"、"网盘下载"、"网盘上传"、"pan download"、"pan upload"、"从网盘下载"、"上传到网盘"时触发。下载通过 Python 脚本实现，上传可以通过脚本或 MCP server 实现。
 ---
 
 # 百度网盘 Skill
@@ -26,11 +26,32 @@ python3 ~/.claude/skills/baidu-netdisk/scripts/baidu_netdisk_download.py "/00.�
 
 ## 上传文件
 
+### 方式一：使用上传脚本（推荐）
+
+```bash
+python3 ~/.claude/skills/baidu-netdisk/scripts/baidu_netdisk_upload.py <token> <本地路径> <云盘路径>
+```
+
+示例：上传文件
+```bash
+python3 ~/.claude/skills/baidu-netdisk/scripts/baidu_netdisk_upload.py \
+  123.c68877f05410f395f81267f11b58ecfe.YsKf5H7VfakX1Fp_Q4ws0bbBLHdGAEKJRAvw6JY.5O-Xbw \
+  /home/user/document.pdf \
+  "/00.王斌/04.工作/docs"
+```
+
+参数：
+- 第一个参数（必填）：百度网盘 access_token
+- 第二个参数（必填）：本地文件路径
+- 第三个参数（必填）：云盘路径（必须以 `/` 开头）
+
+### 方式二：使用 MCP server
+
 查找 MCP server `baidu-netdisk-local-uploader`：
 - **如果存在**：直接使用 MCP tool `upload_file`，参数为 `local_file_path` 和可选的 `remote_path`
 - **如果不存在**：按以下流程创建
 
-### 创建 MCP Server 流程
+#### 创建 MCP Server 流程
 
 1. 引导用户授权：
    > 请打开这个链接，登录网盘后点击授权按钮，将授权通过的完整 URL 发给我：
@@ -48,7 +69,7 @@ python3 ~/.claude/skills/baidu-netdisk/scripts/baidu_netdisk_download.py "/00.�
    {
      "baidu-netdisk-local-uploader": {
        "type": "stdio",
-       "command": "<uv绝对路径>",
+       "command": "<uv 绝对路径>",
        "args": [
          "--directory",
          "<HOME>/.claude/skills/baidu-netdisk/scripts/netdisk-mcp-server-stdio",
@@ -56,7 +77,7 @@ python3 ~/.claude/skills/baidu-netdisk/scripts/baidu_netdisk_download.py "/00.�
          "netdisk.py"
        ],
        "env": {
-         "BAIDU_NETDISK_ACCESS_TOKEN": "<用户的access_token>"
+         "BAIDU_NETDISK_ACCESS_TOKEN": "<用户的 access_token>"
        }
      }
    }
@@ -66,6 +87,5 @@ python3 ~/.claude/skills/baidu-netdisk/scripts/baidu_netdisk_download.py "/00.�
 
 ## 注意事项
 
-- 下载脚本中的 access token 有效期为 30 天，过期后需重新授权
-- 上传 MCP server 同样使用该 token，过期后需更新 `~/.claude/.mcp.json` 中的 `BAIDU_NETDISK_ACCESS_TOKEN`
+- access_token 有效期为 30 天，过期后需重新授权
 - 大于 4MB 的文件上传时会自动分片
