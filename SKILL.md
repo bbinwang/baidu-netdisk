@@ -1,6 +1,6 @@
 ---
 name: baidu-netdisk
-description: 百度网盘文件下载和上传。当用户提到"百度网盘"、"网盘下载"、"网盘上传"、"pan download"、"pan upload"、"从网盘下载"、"上传到网盘"时触发。下载通过 Python 脚本实现，上传优先使用上传脚本（从 MCP server 的 BAIDU_NETDISK_ACCESS_TOKEN 读取 token）。
+description: 百度网盘文件下载和上传。当用户提到"百度网盘"、"网盘下载"、"网盘上传"、"pan download"、"pan upload"、"从网盘下载"、"上传到网盘"时触发。脚本从 baidu-netdisk-local-uploader MCP 配置的 BAIDU_NETDISK_ACCESS_TOKEN 自动读取 access_token。
 ---
 
 # 百度网盘 Skill
@@ -24,6 +24,8 @@ python3 ~/.claude/skills/baidu-netdisk/scripts/baidu_netdisk_download.py "/00.�
 - 第一个参数（必填）：网盘文件路径，如 `/文件夹/文件名.jpg`
 - 第二个参数（可选）：本地保存路径，默认保存到当前目录
 
+说明：`access_token` 会自动从 `baidu-netdisk-local-uploader` MCP 服务器配置的 `BAIDU_NETDISK_ACCESS_TOKEN` 环境变量读取。
+
 ## 上传文件
 
 ### 方式一：使用上传脚本（推荐）
@@ -43,7 +45,7 @@ python3 ~/.claude/skills/baidu-netdisk/scripts/baidu_netdisk_upload.py \
 - 第一个参数（必填）：本地文件路径
 - 第二个参数（必填）：云盘路径（必须以 `/` 开头）
 
-说明：脚本会自动从 `baidu-netdisk-local-uploader` MCP 服务器配置的 `BAIDU_NETDISK_ACCESS_TOKEN` 环境变量读取 token，无需手动传入。
+说明：`access_token` 会自动从 `baidu-netdisk-local-uploader` MCP 服务器配置的 `BAIDU_NETDISK_ACCESS_TOKEN` 环境变量读取。
 
 ### 方式二：使用 MCP server
 

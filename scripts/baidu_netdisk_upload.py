@@ -2,7 +2,8 @@
 """
 百度网盘上传脚本
 参数：本地路径，云盘路径
-复用 netdisk.py 中的上传能力，从 baidu-netdisk-local-uploader MCP 配置的 BAIDU_NETDISK_ACCESS_TOKEN 读取 token
+access_token 从 baidu-netdisk-local-uploader MCP 配置的 BAIDU_NETDISK_ACCESS_TOKEN 读取
+复用 netdisk.py 中的上传能力
 """
 import os
 import sys
@@ -24,8 +25,8 @@ def main():
     args = parser.parse_args()
 
     # 从 MCP 配置的 BAIDU_NETDISK_ACCESS_TOKEN 读取 token
-    token = os.environ.get("BAIDU_NETDISK_ACCESS_TOKEN")
-    if not token:
+    access_token = os.environ.get("BAIDU_NETDISK_ACCESS_TOKEN")
+    if not access_token:
         print("error: BAIDU_NETDISK_ACCESS_TOKEN not set, please configure baidu-netdisk-local-uploader MCP server")
         return 1
 
