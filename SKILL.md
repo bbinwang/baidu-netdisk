@@ -1,6 +1,6 @@
 ---
 name: baidu-netdisk
-description: 百度网盘文件下载和上传。当用户提到"百度网盘"、"网盘下载"、"网盘上传"、"pan download"、"pan upload"、"从网盘下载"、"上传到网盘"时触发。下载通过 Python 脚本实现，上传可以通过脚本或 MCP server 实现。
+description: 百度网盘文件下载和上传。当用户提到"百度网盘"、"网盘下载"、"网盘上传"、"pan download"、"pan upload"、"从网盘下载"、"上传到网盘"时触发。下载通过 Python 脚本实现，上传优先使用上传脚本（从 MCP server 的 BAIDU_NETDISK_ACCESS_TOKEN 读取 token）。
 ---
 
 # 百度网盘 Skill
@@ -29,63 +29,29 @@ python3 ~/.claude/skills/baidu-netdisk/scripts/baidu_netdisk_download.py "/00.�
 ### 方式一：使用上传脚本（推荐）
 
 ```bash
-python3 ~/.claude/skills/baidu-netdisk/scripts/baidu_netdisk_upload.py <token> <本地路径> <云盘路径>
+python3 ~/.claude/skills/baidu-netdisk/scripts/baidu_netdisk_upload.py <本地路径> <云盘路径>
 ```
 
 示例：上传文件
 ```bash
 python3 ~/.claude/skills/baidu-netdisk/scripts/baidu_netdisk_upload.py \
-  123.c68877f05410f395f81267f11b58ecfe.YsKf5H7VfakX1Fp_Q4ws0bbBLHdGAEKJRAvw6JY.5O-Xbw \
   /home/user/document.pdf \
   "/00.王斌/04.工作/docs"
 ```
 
 参数：
-- 第一个参数（必填）：百度网盘 access_token
-- 第二个参数（必填）：本地文件路径
-- 第三个参数（必填）：云盘路径（必须以 `/` 开头）
+- 第一个参数（必填）：本地文件路径
+- 第二个参数（必填）：云盘路径（必须以 `/` 开头）
+
+说明：脚本会自动从 `baidu-netdisk-local-uploader` MCP 服务器配置的 `BAIDU_NETDISK_ACCESS_TOKEN` 环境变量读取 token，无需手动传入。
 
 ### 方式二：使用 MCP server
 
-查找 MCP server `baidu-netdisk-local-uploader`：
-- **如果存在**：直接使用 MCP tool `upload_file`，参数为 `local_file_path` 和可选的 `remote_path`
-- **如果不存在**：按以下流程创建
-
-#### 创建 MCP Server 流程
-
-1. 引导用户授权：
-   > 请打开这个链接，登录网盘后点击授权按钮，将授权通过的完整 URL 发给我：
-   > https://openapi.baidu.com/oauth/2.0/authorize?response_type=token&client_id=QHOuRXiepJBMjtk0esLhrPoNlQyYd0mF&redirect_uri=oob&scope=basic,netdisk
-
-2. 从用户返回的 URL 中提取 `access_token` 参数值（URL 格式为 `https://openapi.baidu.com/oauth/2.0/login_success#access_token=xxx&...`，取 `access_token=` 后面的值，到 `&` 为止）
-
-3. 获取 uv 绝对路径：
-   ```bash
-   which uv
-   ```
-
-4. 将以下配置添加到全局 MCP 配置文件 `~/.claude/.mcp.json`（与已有配置合并，不要覆盖）：
-   ```json
-   {
-     "baidu-netdisk-local-uploader": {
-       "type": "stdio",
-       "command": "<uv 绝对路径>",
-       "args": [
-         "--directory",
-         "<HOME>/.claude/skills/baidu-netdisk/scripts/netdisk-mcp-server-stdio",
-         "run",
-         "netdisk.py"
-       ],
-       "env": {
-         "BAIDU_NETDISK_ACCESS_TOKEN": "<用户的 access_token>"
-       }
-     }
-   }
-   ```
-
-5. 提示用户重启 Claude Code 使 MCP server 生效
+使用 MCP server `baidu-netdisk-local-uploader` 的 `upload_file` 工具：
+- `local_file_path`：必填，本地文件路径
+- `remote_path`：可选，云盘路径（默认保存到根目录）
 
 ## 注意事项
 
-- access_token 有效期为 30 天，过期后需重新授权
+- `BAIDU_NETDISK_ACCESS_TOKEN` 有效期为 30 天，过期后需重新授权并更新配置
 - 大于 4MB 的文件上传时会自动分片
